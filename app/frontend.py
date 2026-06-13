@@ -11,6 +11,27 @@ if 'token' not in st.session_state:
 if 'user' not in st.session_state:
     st.session_state.user = None
 
+query_params = st.query_params
+
+if "token" in query_params:
+
+    token = query_params["token"]
+
+    st.session_state.token = token
+
+    user_response = requests.get(
+        "http://localhost:8000/users/me",
+        headers={
+            "Authorization": f"Bearer {token}"
+        }
+    )
+
+    if user_response.status_code == 200:
+        st.session_state.user = user_response.json()
+
+    st.query_params.clear()
+
+    st.rerun()
 
 def get_headers():
     """Get authorization headers with token"""
@@ -62,6 +83,16 @@ def login_page():
                     st.error(f"Registration failed: {error_detail}")
     else:
         st.info("Enter your email and password above")
+        
+    st.markdown("---")
+
+    google_login_url = "http://localhost:8000/auth/google/login"
+
+    st.link_button(
+        "Continue with Google",
+        google_login_url,
+        use_container_width=True
+    )
 
 
 def upload_page():

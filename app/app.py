@@ -9,6 +9,8 @@ import os
 import uuid
 from app.users import current_active_user, auth_backend, fastapi_users
 from app.schemas import UserRead, UserCreate, UserUpdate
+from app.oauth_routes import router as oauth_router
+from starlette.middleware.sessions import SessionMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -21,6 +23,12 @@ app.include_router(fastapi_users.get_register_router(UserRead, UserCreate), pref
 app.include_router(fastapi_users.get_reset_password_router(), prefix="/auth", tags=["auth"])
 app.include_router(fastapi_users.get_verify_router(UserRead), prefix="/auth", tags=["auth"])
 app.include_router(fastapi_users.get_users_router(UserRead, UserUpdate), prefix="/users", tags=["users"])
+app.include_router(oauth_router)
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key="some-random-long-secret-key"
+)
 
 @app.post("/upload")
 async def upload_file(

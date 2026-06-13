@@ -15,6 +15,9 @@ class Base(DeclarativeBase):
 
 class User(Base, SQLAlchemyBaseUserTableUUID):
     __tablename__ = "user"
+    
+    google_id = Column(String, unique=True, nullable=True)
+    
     posts = relationship("Post", back_populates="user")
 
 class Post(Base):
